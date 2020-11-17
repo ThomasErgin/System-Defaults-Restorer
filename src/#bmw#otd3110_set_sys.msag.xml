@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>No Authorization to change ATC Settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>No Authorization to change client/system settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>No Authorization to change user settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Could not display ALV GRID Report</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Error updating global settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>Error updating client settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>Error updating namespaces</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Error updating software components</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Error updating global check variant</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Error updating block settings</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>Action cancelled. Another client is already configured for development.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>011</MSGNR>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>/BMW/OTD3110_SET_SYS</ARBGB>
+     <MSGNR>012</MSGNR>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
