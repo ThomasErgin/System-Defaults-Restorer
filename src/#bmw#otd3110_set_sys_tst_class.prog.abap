@@ -84,10 +84,6 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
                                              ( bname = test_user2 profile = sap_new ) ).
     environment->insert_test_data( super_users ).
 
-    "Set up test users
-    DATA(global_check_variants) = VALUE /vforge/cp_t_scichkv_hd( ( checkvid = '99999' ciuser = test checkvname = test ) ).
-    environment->insert_test_data( global_check_variants ).
-
   ENDMETHOD.
 
   METHOD teardown.
