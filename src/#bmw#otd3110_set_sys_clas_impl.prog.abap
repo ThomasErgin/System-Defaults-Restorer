@@ -7,6 +7,11 @@ CLASS system_defaults_setter IMPLEMENTATION.
   METHOD constructor.
     leave_on_errors = enable_errors.
 
+    SELECT SINGLE @abap_true
+      FROM t000
+      INTO @dev_client_already_exists
+      WHERE mandt <> @sy-mandt AND cccategory = @client_role_cust.
+
     "Update selection screen with current client settings
     SELECT SINGLE cccategory cccoractiv ccnocliind ccimaildis
       FROM t000
@@ -66,34 +71,28 @@ CLASS system_defaults_setter IMPLEMENTATION.
     IF p_clnset = abap_false AND p_sysset = abap_false AND p_usrset = abap_false AND p_atcset = abap_false.
       MESSAGE e006(cj).     "Select at least one activity
     ENDIF.
-
-    SELECT SINGLE @abap_true
-      FROM t000
-      INTO @DATA(dev_client_already_exists)
-      WHERE mandt <> @sy-mandt AND cccategory = @client_role_cust.
-    IF dev_client_already_exists = abap_true AND ( p_sysset = abap_true OR p_atcset = abap_true ).
-      MESSAGE e010. "Action cancelled. Another client is already configured for development.
-    ENDIF.
-
   ENDMETHOD.
 
   METHOD modify_selection_screen.
-    LOOP AT SCREEN.
-      "if user selects client settings/system settings/user settings enable relevant selection fields
-      IF p_clnset = abap_true AND screen-group1 = 'CLN'
-        OR p_sysset = abap_true AND screen-group1 = 'SYS'
-        OR p_usrset = abap_true AND screen-group1 = 'USR'
-        OR p_atcset = abap_true AND screen-group1 = 'ATC'
-        OR p_atcset = abap_true AND screen-group1 = 'A1' AND atc_setting_exists = abap_true
-        OR p_atcset = abap_true AND screen-group1 = 'A2' AND current_tms_setting <> feature_not_available.
-        screen-active = '1'.
 
-        "if user deselect the settings, disable relevant selection fields
-      ELSEIF p_clnset = abap_false AND screen-group1 = 'CLN'
-        OR p_sysset = abap_false AND screen-group1 = 'SYS'
+    LOOP AT SCREEN.
+
+      "if user deselect the settings, disable relevant selection fields
+      IF p_clnset = abap_false AND screen-group1 = 'CLN'
         OR p_usrset = abap_false AND screen-group1 = 'USR'
-        OR screen-group1 = 'ATC' OR screen-group1 = 'A1' OR screen-group1 = 'A2'.
+        OR p_sysset = abap_false AND screen-group1 = 'SYS'
+        OR p_atcset = abap_false AND ( screen-group1 = 'ATC' or screen-group1 = 'A1' or screen-group1 = 'A2' )
+        "disable tms settings
+        OR current_tms_setting = feature_not_available AND screen-group1 = 'A2'
+        "disable ATC settings
+        OR atc_setting_exists = abap_false and screen-group1 = 'A1'
+        "disable both System (SE06) and ATC (SE01) settings
+        OR dev_client_already_exists = abap_true
+        AND ( screen-name = 'P_SYSSET' OR screen-group1 = 'SYS' OR screen-name = '%BSS1008_BLOCK_1000'
+          OR screen-name = 'P_ATCSET' OR screen-group1 = 'ATC' OR screen-name = '%BATC018_BLOCK_1000' OR screen-group1 = 'A1' OR screen-group1 = 'A2' ).
         screen-active = '0'.
+      ELSE.
+        screen-active = '1'.
       ENDIF.
 
       MODIFY SCREEN.
@@ -159,7 +158,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
 
   METHOD restore_system_settings.
 
-    CHECK p_sysset = abap_true.
+    CHECK p_sysset = abap_true AND dev_client_already_exists = abap_false.
 
     "get current system settings
     SELECT SINGLE edtflag
@@ -246,7 +245,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD restore_atc_settings.
-    CHECK p_atcset = abap_true.
+    CHECK p_atcset = abap_true AND dev_client_already_exists = abap_false.
 
     DATA(current_atc_setting) = get_current_atc_setting( ).
     DATA(requested_atc_setting) = get_requested_atc_setting( ).

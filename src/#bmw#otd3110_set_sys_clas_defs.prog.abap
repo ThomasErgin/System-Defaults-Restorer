@@ -71,8 +71,9 @@ CLASS system_defaults_setter DEFINITION.
   PRIVATE SECTION.
 
     DATA:
-      inform_priority TYPE satc_ci_transport_setting,
-      leave_on_errors TYPE abap_bool.
+      inform_priority           TYPE satc_ci_transport_setting,
+      leave_on_errors           TYPE abap_bool,
+      dev_client_already_exists TYPE abap_bool.
 
     METHODS:
       add_atc_db_lock,
