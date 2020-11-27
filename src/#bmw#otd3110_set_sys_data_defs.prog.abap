@@ -44,15 +44,13 @@ SELECTION-SCREEN:BEGIN OF BLOCK client_settings WITH FRAME TITLE TEXT-cs1. "Clie
     p_role   TYPE t000-cccategory OBLIGATORY USER-COMMAND client_role AS LISTBOX VISIBLE LENGTH 20 MODIF ID cln,
     p_chg_tr TYPE t000-cccoractiv AS LISTBOX VISIBLE LENGTH 80 MODIF ID cln,
     p_objchg TYPE t000-ccnocliind AS LISTBOX VISIBLE LENGTH 60 MODIF ID cln,
-    p_ecatt  TYPE t000-ccimaildis AS LISTBOX VISIBLE LENGTH 60 MODIF ID cln,
-    p_cltest TYPE test_x DEFAULT abap_true AS CHECKBOX MODIF ID cln.
+    p_ecatt  TYPE t000-ccimaildis AS LISTBOX VISIBLE LENGTH 60 MODIF ID cln.
 SELECTION-SCREEN:END OF BLOCK client_settings.
 
 SELECTION-SCREEN:BEGIN OF BLOCK system_settings WITH FRAME TITLE TEXT-ss1. "System settings
   PARAMETERS:
     p_sysset TYPE abap_bool DEFAULT abap_false AS CHECKBOX USER-COMMAND toggle,
-    p_glset  TYPE trchange  AS LISTBOX VISIBLE LENGTH 20 MODIF ID sys,
-    p_sytest TYPE test_x DEFAULT abap_true AS CHECKBOX MODIF ID sys.
+    p_glset  TYPE trchange  AS LISTBOX VISIBLE LENGTH 20 MODIF ID sys.
 SELECTION-SCREEN:END OF BLOCK system_settings.
 
 SELECTION-SCREEN:BEGIN OF BLOCK user_settings WITH FRAME TITLE TEXT-ups. "User profile settings
@@ -60,8 +58,6 @@ SELECTION-SCREEN:BEGIN OF BLOCK user_settings WITH FRAME TITLE TEXT-ups. "User p
     p_usrset TYPE abap_bool DEFAULT abap_false AS CHECKBOX USER-COMMAND toggle.
   SELECT-OPTIONS:
     s_user   FOR usr02-bname MODIF ID usr.
-  PARAMETERS:
-    p_ustest TYPE test_x DEFAULT abap_true AS CHECKBOX MODIF ID usr.
 SELECTION-SCREEN:END OF BLOCK user_settings.
 
 SELECTION-SCREEN:BEGIN OF BLOCK atc_settings WITH FRAME TITLE TEXT-atc. "ATC settings
@@ -82,6 +78,6 @@ SELECTION-SCREEN:BEGIN OF BLOCK atc_settings WITH FRAME TITLE TEXT-atc. "ATC set
       p_task TYPE c AS CHECKBOX DEFAULT 'X' MODIF ID a2,
       p_toc  TYPE c AS CHECKBOX MODIF ID a2.
   SELECTION-SCREEN:END OF BLOCK b6.
-  PARAMETERS:
-    p_atctst TYPE test_x DEFAULT abap_true AS CHECKBOX MODIF ID atc.
 SELECTION-SCREEN:END OF BLOCK atc_settings.
+PARAMETERS:
+    p_test TYPE test_x AS CHECKBOX DEFAULT abap_true.

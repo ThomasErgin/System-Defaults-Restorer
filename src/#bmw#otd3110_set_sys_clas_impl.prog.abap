@@ -81,15 +81,15 @@ CLASS system_defaults_setter IMPLEMENTATION.
       IF p_clnset = abap_false AND screen-group1 = 'CLN'
         OR p_usrset = abap_false AND screen-group1 = 'USR'
         OR p_sysset = abap_false AND screen-group1 = 'SYS'
-        OR p_atcset = abap_false AND ( screen-group1 = 'ATC' or screen-group1 = 'A1' or screen-group1 = 'A2' )
+        OR p_atcset = abap_false AND ( screen-group1 = 'ATC' OR screen-group1 = 'A1' OR screen-group1 = 'A2' )
         "disable tms settings
         OR current_tms_setting = feature_not_available AND screen-group1 = 'A2'
         "disable ATC settings
-        OR atc_setting_exists = abap_false and screen-group1 = 'A1'
+        OR atc_setting_exists = abap_false AND screen-group1 = 'A1'
         "disable both System (SE06) and ATC (SE01) settings
         OR dev_client_already_exists = abap_true
-        AND ( screen-name = 'P_SYSSET' OR screen-group1 = 'SYS' OR screen-name = '%BSS1008_BLOCK_1000'
-          OR screen-name = 'P_ATCSET' OR screen-group1 = 'ATC' OR screen-name = '%BATC018_BLOCK_1000' OR screen-group1 = 'A1' OR screen-group1 = 'A2' ).
+        AND ( screen-name = 'P_SYSSET' OR screen-group1 = 'SYS' OR screen-name = '%BSS1007_BLOCK_1000'
+          OR screen-name = 'P_ATCSET' OR screen-group1 = 'ATC' OR screen-name = '%BATC015_BLOCK_1000' OR screen-group1 = 'A1' OR screen-group1 = 'A2' ).
         screen-active = '0'.
       ELSE.
         screen-active = '1'.
@@ -127,7 +127,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
        current_client_settings-ccimaildis = p_ecatt.
       INSERT VALUE #( message = 'No client changes made'(ncm) ) INTO TABLE log_table.
       "User wants to update client settings
-    ELSEIF p_cltest = abap_true OR update_client( ) = abap_true.
+    ELSEIF p_test = abap_true OR update_client( ) = abap_true.
       INSERT VALUE #(
         message    = 'Client settings changed from:'(csc)
         field_name = 'CCCATEGORY'(cat)
@@ -185,7 +185,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     IF requested_client_setting = is_current_client_editable.
       INSERT VALUE #( message = 'No system changes made'(nsm) ) INTO TABLE log_table.
       "User wants to change the client setting
-    ELSEIF p_sytest = abap_true OR  update_system( requested_client_setting ) = abap_true.
+    ELSEIF p_test = abap_true OR  update_system( requested_client_setting ) = abap_true.
 
       DATA:
         client_setting_before TYPE string.
@@ -232,7 +232,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
         DATA(user_updated) = update_user( user_name = user_name
                                           user_profiles = user_profiles ).
         "Display report when test mode is active or when user profiles removed
-        IF p_ustest = abap_true OR user_updated = abap_true.
+        IF p_test = abap_true OR user_updated = abap_true.
           INSERT VALUE #(
             message = 'SAP_ALL/SAP_NEW removed from user'(sru)
             field_name = current_super_user->bname
@@ -258,7 +258,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
       INSERT VALUE #( message = 'No client changes made'(ncm) ) INTO TABLE log_table.
 
       "Display report when test mode is active or when ATC settings updated
-    ELSEIF p_atctst = abap_true OR update_atc(
+    ELSEIF p_test = abap_true OR update_atc(
       requested_tms_setting = requested_tms_setting
       requested_atc_setting = requested_atc_setting
       current_atc_setting = current_atc_setting ) = abap_true.
@@ -291,9 +291,8 @@ CLASS system_defaults_setter IMPLEMENTATION.
     DATA no_authority_message TYPE string ##needed.
 
     "check authority to change client/global settings
-    IF p_clnset = abap_true  AND p_cltest = abap_false
-     OR p_sysset = abap_true AND p_sytest = abap_false
-     OR p_atcset = abap_true AND p_atctst = abap_false.
+    IF p_test = abap_false AND ( p_clnset = abap_true
+     OR p_sysset = abap_true OR p_atcset = abap_true ).
       AUTHORITY-CHECK OBJECT 'S_CTS_ADMI'
        ID 'CTS_ADMFCT' FIELD 'TABL'.
       IF sy-subrc <> 0.
@@ -303,7 +302,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     ENDIF.
 
     "check authority to change client settings
-    IF p_clnset = abap_true  AND p_cltest = abap_false.
+    IF p_clnset = abap_true  AND p_test = abap_false.
       AUTHORITY-CHECK OBJECT 'S_ADMI_FCD'
         ID 'S_ADMI_FCD' FIELD 'T000'.
       IF sy-subrc <> 0.
@@ -313,7 +312,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     ENDIF.
 
     "check authority to change global settings
-    IF p_sysset = abap_true AND p_sytest = abap_false.
+    IF p_sysset = abap_true AND p_test = abap_false.
       AUTHORITY-CHECK OBJECT 'S_CTS_ADMI'
        ID 'CTS_ADMFCT' FIELD 'SYSC'.
       IF sy-subrc <> 0.
@@ -323,7 +322,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     ENDIF.
 
     "check authority to change user profiles(SAP_ALL/SAP_NEW)
-    IF p_usrset = abap_true AND p_ustest = abap_false.
+    IF p_usrset = abap_true AND p_test = abap_false.
       AUTHORITY-CHECK OBJECT 'S_USER_PRO'
        ID 'PROFILE' FIELD 'SAP_ALL'
        ID 'ACTVT'   FIELD '22'.
@@ -342,7 +341,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     ENDIF.
 
     "Check Authority to change ATC Settings
-    IF p_atcset = abap_true AND p_atctst = abap_false.
+    IF p_atcset = abap_true AND p_test = abap_false.
       AUTHORITY-CHECK OBJECT 'S_Q_ADM'
         ID 'ACTVT'   FIELD '02'
         ID 'ATC_OBJTYP' FIELD '04'
@@ -403,7 +402,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
 
   METHOD update_client.
     "if test mode is not active, update client settings
-    CHECK p_cltest = abap_false.
+    CHECK p_test = abap_false.
 
     "Lock client table T000
     add_client_db_locks( 'T000' ).
@@ -427,7 +426,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
 
   METHOD update_system.
     "If test mode is not active, update global settings
-    CHECK p_sytest = abap_false.
+    CHECK p_test = abap_false.
 
     DATA update_error_message TYPE string ##needed.
 
@@ -469,7 +468,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD update_user.
-    CHECK p_ustest = abap_false.
+    CHECK p_test = abap_false.
 
     DATA:
       return TYPE TABLE OF bapiret2.
@@ -497,7 +496,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD update_atc.
-    CHECK p_atctst = abap_false.
+    CHECK p_test = abap_false.
 
     add_atc_db_lock( ).
 

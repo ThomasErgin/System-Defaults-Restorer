@@ -241,12 +241,6 @@
     </item>
     <item>
      <ID>S</ID>
-     <KEY>P_ATCTST</KEY>
-     <ENTRY>Test mode</ENTRY>
-     <LENGTH>17</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
      <KEY>P_CHG_TR</KEY>
      <ENTRY>Change &amp; Transports for Client</ENTRY>
      <LENGTH>38</LENGTH>
@@ -256,12 +250,6 @@
      <KEY>P_CLNSET</KEY>
      <ENTRY>Restore Client Settings</ENTRY>
      <LENGTH>31</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_CLTEST</KEY>
-     <ENTRY>Test mode</ENTRY>
-     <LENGTH>17</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -331,15 +319,15 @@
     </item>
     <item>
      <ID>S</ID>
-     <KEY>P_SYTEST</KEY>
-     <ENTRY>Test mode</ENTRY>
-     <LENGTH>17</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
      <KEY>P_TASK</KEY>
      <ENTRY>Task</ENTRY>
      <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_TEST</KEY>
+     <ENTRY>Test Mode is Active</ENTRY>
+     <LENGTH>27</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -352,12 +340,6 @@
      <KEY>P_USRSET</KEY>
      <ENTRY>Remove SAP_ALL / SAP_NEW</ENTRY>
      <LENGTH>32</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_USTEST</KEY>
-     <ENTRY>Test mode</ENTRY>
-     <LENGTH>17</LENGTH>
     </item>
     <item>
      <ID>S</ID>

@@ -42,6 +42,7 @@ CLASS set_syst_defaults_aut DEFINITION FOR TESTING FINAL
       client_role_test_in_testmode FOR TESTING,
       client_sett_changed_updatemode FOR TESTING,
       system_sett_changed_testmode FOR TESTING,
+      system_sett_notchanged_testmde FOR TESTING,
       system_sett_changed_updatemode FOR TESTING,
       user_profile_changed FOR TESTING,
       atc_test_block_settings FOR TESTING,
@@ -64,9 +65,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD setup.
-    p_cltest = abap_true.
-    p_sytest = abap_true.
-    p_ustest = abap_true.
+    p_test = abap_true.
 
     "Set up the global system settings
     DATA(global_settings) = VALUE tt_tadir( ( pgmid = test object = test obj_name = space edtflag = space )
@@ -89,9 +88,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   METHOD teardown.
     " clean up test databases after module test
     environment->clear_doubles( ).
-
-    CLEAR: p_cltest, p_sytest, p_ustest, p_clnset,
-           p_role, p_chg_tr, p_objchg, p_sysset, p_glset, p_usrset.
+    CLEAR: p_test, p_clnset, p_role, p_chg_tr, p_objchg, p_sysset, p_glset, p_usrset.
   ENDMETHOD.
 
   METHOD system_setter_created.
@@ -168,7 +165,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD auth_on_clnset_validated.
     p_clnset = abap_true.   "change client settings
-    p_cltest = abap_false.
+    p_test = abap_false.
     check_user_authority( ).
     cl_abap_unit_assert=>assert_equals(
       act   = '026'
@@ -177,7 +174,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD auth_on_userset_validated.
     p_usrset = abap_true.   "change user settings
-    p_ustest = abap_false.  "Test mode not active
+    p_test = abap_false.  "Test mode not active
     check_user_authority( ).
     cl_abap_unit_assert=>assert_equals(
       act   = '026'
@@ -186,7 +183,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD auth_on_sysset_validated.
     p_sysset = abap_true.   "change system settings
-    p_sytest = abap_false.  "Test mode not active
+    p_test = abap_false.  "Test mode not active
     check_user_authority( ).
     cl_abap_unit_assert=>assert_equals(
       act   = '026'
@@ -200,7 +197,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   METHOD client_role_cust_in_testmode.
     "Test client settings when test mode is active
     p_clnset = abap_true.        "change client settings
-    p_cltest = abap_true.        "Test mode is active
+    p_test = abap_true.        "Test mode is active
     p_role   = client_role_cust. "Client role: Customizing
     p_chg_tr = transport_changes_allowed. "Customizing in this client can be changed
     p_objchg = changes_allowed.   "changes to repository objects
@@ -218,7 +215,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   METHOD client_role_test_in_testmode.
     "Test client settings when test mode is active
     p_clnset = abap_true.        "change client settings
-    p_cltest = abap_true.        "Test mode is active
+    p_test = abap_true.        "Test mode is active
     p_role   = client_role_test. "Client role: Test
     p_chg_tr = customizing_not_changeable. "Customizing in this client cannot be changed
     p_objchg = no_changes_allowed.         "No changes to repository objects
@@ -239,15 +236,12 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD system_sett_changed_testmode.
-    "given
     p_sysset = abap_true.     "change system settings
-    p_sytest = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     client_id = test.
     client_type = test.
     p_glset  = not_modifiable_indicator.         "Not modifiable
-    "when
     execute_main( ).
-    "then
     cl_abap_unit_assert=>assert_table_contains(
       line             = VALUE /bmw/otd3110_output(
         message    = 'Global settings changed from:'(gsc)
@@ -255,30 +249,25 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
         current_value  = 'Modifiable'(mod)
         requested_value  = 'Not-Modifiable'(nmd)  )
       table        = log_table[] ).
+  ENDMETHOD.
 
-    "given
+  METHOD system_sett_notchanged_testmde.
     p_sysset = abap_true.     "change system settings
-    p_sytest = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     client_id = test.
     client_type = test.
     p_glset  = modifiable.         "modifiable
-    "when
     execute_main( ).
-    "then
     cl_abap_unit_assert=>assert_table_contains(
       line             = VALUE /bmw/otd3110_output( message = 'No system changes made'(nsm) )
       table            = log_table[] ).
-
   ENDMETHOD.
 
   METHOD user_profile_changed.
-    "given
     p_usrset = abap_true.       "change user settings
-    p_ustest = abap_true.       "Test mode is active
+    p_test = abap_true.       "Test mode is active
     s_user = VALUE #( sign = 'I' option = 'EQ' low = test_user1 ).
-    "when
     execute_main( ).
-    "then
     cl_abap_unit_assert=>assert_table_contains(
       line             = VALUE /bmw/otd3110_output(
         message = 'SAP_ALL/SAP_NEW removed from user'(sru)
@@ -286,21 +275,16 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
         current_value = 'SAP_ALL/SAP_NEW'(prf)
         requested_value = space  )
       table        = log_table[] ).
-
-
-    "given
-    p_usrset = abap_true.       "change user settings
-    p_ustest = abap_false.      "Test mode is not active
-    s_user = VALUE #( sign = 'I' option = 'EQ' low = test_user2 ).
-    "When, then
-    cl_abap_unit_assert=>assert_initial( act = execute_main( ) ).
-
+*    p_usrset = abap_true.       "change user settings
+*    p_test = abap_false.      "Test mode is not active
+*    s_user = VALUE #( sign = 'I' option = 'EQ' low = test_user2 ).
+*    cl_abap_unit_assert=>assert_initial( act = execute_main( ) ).
   ENDMETHOD.
 
   METHOD client_sett_changed_updatemode.
     "Test client settings when test mode is not active
     p_clnset = abap_true.        "change client settings
-    p_cltest = abap_false.        "Test mode is not active
+    p_test = abap_false.        "Test mode is not active
     p_role   = client_role_test. "Client role: Test
     p_chg_tr = customizing_not_changeable. "Customizing in this client cannot be changed
     p_objchg = no_changes_allowed.         "No changes to repository objects
@@ -317,7 +301,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD system_sett_changed_updatemode.
     p_sysset = abap_true.       "change system settings
-    p_sytest = abap_false.      "Test mode is not active
+    p_test = abap_false.      "Test mode is not active
     client_id = test.
     client_type = test.
     p_glset  = not_modifiable_indicator.  "Not modifiable
@@ -329,7 +313,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD atc_test_no_change.
     p_atcset = abap_true.     "change ATC settings
-    p_atctst = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     current_global_check_variant = global_variant.
     p_gcvar  = global_variant.  "Global variant
     p_pri12  = abap_true.     "Priority 12
@@ -348,7 +332,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD atc_test_block_settings.
     p_atcset = abap_true.     "change ATC settings
-    p_atctst = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     p_pri12  = abap_false.    "Priority 12
     p_pri123 = abap_true.     "Any priority
     atc_setting_exists = abap_true.
@@ -363,7 +347,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD atc_test_object_release.
     p_atcset = abap_true.     "change ATC settings
-    p_atctst = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     p_toc    = abap_true.     "TOC
     atc_setting_exists = abap_true.
     current_tms_setting = req_task.
@@ -378,7 +362,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD atc_test_global_variant.
     p_atcset = abap_true.     "change ATC settings
-    p_atctst = abap_true.     "Test mode is active
+    p_test = abap_true.     "Test mode is active
     p_gcvar  = test.          "Global variant
     execute_main( ).
     cl_abap_unit_assert=>assert_table_contains(
@@ -391,7 +375,7 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
   METHOD atc_sett_changed_updatemode.
     p_atcset = abap_true.      "change ATC settings
-    p_atctst = abap_false.     "Test mode is not active
+    p_test = abap_false.     "Test mode is not active
     current_global_check_variant = '/BMW/COMPLETE_CHECK_SET'.
     p_gcvar  = global_variant. "Global variant '/BMW/MINIMUM_CODE_REQUIREMENTS'
     p_never  = abap_false.     "Never
