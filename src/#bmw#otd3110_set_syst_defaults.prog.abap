@@ -1,5 +1,5 @@
 *&---------------------------------------------------------------------*
-*& Report /BMW/OTD3110_SET_SYST_DEFAULTS :-)
+*& Report /BMW/OTD3110_SET_SYST_DEFAULTS
 *&---------------------------------------------------------------------*
 * TITLE          : Set system defaults
 * AUTHOR         : Madhuri Kalakonda (QXZ10LQ)
