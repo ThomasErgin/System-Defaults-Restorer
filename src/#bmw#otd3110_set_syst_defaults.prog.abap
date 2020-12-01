@@ -1,5 +1,5 @@
 *&---------------------------------------------------------------------*
-*& Report /BMW/OTD3110_SET_SYST_DEFAULTS
+*& Report /BMW/OTD3110_SET_SYST_DEFAULTS :-)
 *&---------------------------------------------------------------------*
 * TITLE          : Set system defaults
 * AUTHOR         : Madhuri Kalakonda (QXZ10LQ)
@@ -7,7 +7,6 @@
 * DEVELOPMENT ID : OTD3110
 * CHANGE REQUEST : CD 2000102391
 * DESCRIPTION    : periodically restore system specific default settings
-*
 ************************************************************************
 * CHANGE HISTORY LOG
 *-----------------------------------------------------------------------
