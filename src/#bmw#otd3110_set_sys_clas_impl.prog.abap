@@ -10,7 +10,7 @@ CLASS system_defaults_setter IMPLEMENTATION.
     SELECT SINGLE @abap_true
       FROM t000
       INTO @dev_client_already_exists
-      WHERE mandt <> @sy-mandt AND cccategory = @client_role_cust.
+      WHERE mandt <> @sy-mandt AND ccnocliind = @cross_client_changes_allowed.
 
     "Update selection screen with current client settings
     SELECT SINGLE cccategory cccoractiv ccnocliind ccimaildis
@@ -170,37 +170,88 @@ CLASS system_defaults_setter IMPLEMENTATION.
     ASSERT sy-subrc = 0. "If this fails, system is really wrong
 
     DATA:
-      client_setting_after     TYPE string,
-      requested_client_setting TYPE tadir-edtflag.
+      client_setting_after           TYPE string,
+      requested_client_setting       TYPE tadir-edtflag,
+      requested_namespace_setting    TYPE trnspace-editflag,
+      req_software_component_setting TYPE dlv_systc-changeable,
+      software_components            TYPE ty_software_components.
 
     IF p_glset = not_modifiable_indicator.
       client_setting_after = 'Not-Modifiable'(nmd).
       requested_client_setting = not_modifiable_indicator.
+      requested_namespace_setting = abap_false.
+      req_software_component_setting = not_modifiable_indicator.
+      "Check if software component update required
+      SELECT SINGLE @abap_true
+        FROM dlv_systc
+        INTO @DATA(software_comp_update_required)
+       WHERE changeable <> @req_software_component_setting.
     ELSE.
       client_setting_after = 'Modifiable'(mod).
       requested_client_setting = abap_false.
+      requested_namespace_setting = abap_true.
+      req_software_component_setting = restricted_modifiable.
+      software_components = VALUE #(
+        ( sign = 'I' option = 'EQ' low = 'HOME' )
+        ( sign = 'I' option = 'EQ' low = 'LOCAL' ) ).
+      "Check if software component update required
+      SELECT SINGLE @abap_true
+        FROM dlv_systc
+        INTO @software_comp_update_required
+       WHERE changeable <> @req_software_component_setting
+         AND dlvunit NOT IN @software_components.
+      "Check if software components (LOCAL and HOME) are set to modifiable
+      SELECT SINGLE @abap_true
+        FROM dlv_systc
+        INTO @software_comp_update_required
+       WHERE changeable <> @system_modifiable
+         AND dlvunit IN @software_components.
     ENDIF.
 
+    "check if namespace update is required
+    SELECT SINGLE @abap_true
+      FROM trnspace
+      INTO @DATA(namespace_update_required)
+     WHERE editflag <> @requested_namespace_setting.
+
     "No change needs to be done
-    IF requested_client_setting = is_current_client_editable.
+    IF requested_client_setting = is_current_client_editable
+      AND namespace_update_required = abap_false
+      AND software_comp_update_required = abap_false.
       INSERT VALUE #( message = 'No system changes made'(nsm) ) INTO TABLE log_table.
       "User wants to change the client setting
-    ELSEIF p_test = abap_true OR  update_system( requested_client_setting ) = abap_true.
+    ELSEIF p_test = abap_true
+      OR update_system(
+      requested_client_setting = requested_client_setting
+      requested_namespace_setting = requested_namespace_setting
+      req_software_component_setting = req_software_component_setting
+      software_components = software_components ) = abap_true.
 
       DATA:
         client_setting_before TYPE string.
 
-      "Convert flag settings into text format
-      IF is_current_client_editable = not_modifiable_indicator.
-        client_setting_before = 'Not-Modifiable'(nmd).
-      ELSE.
-        client_setting_before = 'Modifiable'(mod).
+      IF requested_client_setting <> is_current_client_editable.
+        "Convert flag settings into text format
+        IF is_current_client_editable = not_modifiable_indicator.
+          client_setting_before = 'Not-Modifiable'(nmd).
+        ELSE.
+          client_setting_before = 'Modifiable'(mod).
+        ENDIF.
+
+        INSERT VALUE #( message = 'Global settings changed from:'(gsc)
+                                  field_name = 'EDTFLAG'(edt)
+                                  current_value  = client_setting_before
+                                  requested_value  = client_setting_after  ) INTO TABLE log_table.
       ENDIF.
 
-      INSERT VALUE #( message = 'Global settings changed from:'(gsc)
-                                field_name = 'EDTFLAG'(edt)
-                                current_value  = client_setting_before
-                                requested_value  = client_setting_after  ) INTO TABLE log_table.
+      IF namespace_update_required = abap_true.
+        INSERT VALUE #( message = 'System namespaces changed'(snc) ) INTO TABLE log_table.
+      ENDIF.
+
+      IF software_comp_update_required = abap_true.
+        INSERT VALUE #( message = 'System software components changed'(ssc) ) INTO TABLE log_table.
+      ENDIF.
+
     ENDIF.
 
   ENDMETHOD.
@@ -444,22 +495,29 @@ CLASS system_defaults_setter IMPLEMENTATION.
       raise_error_message( ).
     ENDIF.
 
-    "change software components and namespaces to not-modifiable
-    IF requested_client_setting = not_modifiable_indicator.
-      add_client_db_locks( 'DLV_SYSTC' ).
-      "Remove change option for all Software Components
-      UPDATE dlv_systc SET changeable = not_modifiable_indicator.
+    "Update all software components
+    add_client_db_locks( 'DLV_SYSTC' ).
+    UPDATE dlv_systc SET changeable = @req_software_component_setting.
+    IF sy-subrc <> 0.
+      MESSAGE e007 INTO update_error_message. "Error updating software components
+      raise_error_message(  ).
+    ENDIF.
+
+    "Update all namespaces
+    add_client_db_locks( 'TRNSPACE' ).
+    UPDATE trnspace SET editflag = @requested_namespace_setting.
+    IF sy-subrc <> 0.
+      MESSAGE e006 INTO update_error_message. "Error updating namespaces
+      raise_error_message( ).
+    ENDIF.
+
+    IF req_software_component_setting = restricted_modifiable.
+      "Set LOCAL and HOME Software Components to 'Modifiable'
+      UPDATE dlv_systc SET changeable = @system_modifiable
+                       WHERE dlvunit IN @software_components.
       IF sy-subrc <> 0.
         MESSAGE e007 INTO update_error_message. "Error updating software components
         raise_error_message(  ).
-      ENDIF.
-
-      add_client_db_locks( 'TRNSPACE' ).
-      "Remove change option for all Namespaces
-      UPDATE trnspace SET editflag = abap_false.
-      IF sy-subrc <> 0.
-        MESSAGE e006 INTO update_error_message. "Error updating namespaces
-        raise_error_message( ).
       ENDIF.
     ENDIF.
 

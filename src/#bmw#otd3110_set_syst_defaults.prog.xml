@@ -188,6 +188,12 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>SNC</KEY>
+     <ENTRY>System namespaces changed</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>SRU</KEY>
      <ENTRY>SAP_ALL/SAP_NEW removed from user</ENTRY>
      <LENGTH>66</LENGTH>
@@ -197,6 +203,12 @@
      <KEY>SS1</KEY>
      <ENTRY>System Settings (Transaction SE06)</ENTRY>
      <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>SSC</KEY>
+     <ENTRY>System software components changed</ENTRY>
+     <LENGTH>68</LENGTH>
     </item>
     <item>
      <ID>I</ID>

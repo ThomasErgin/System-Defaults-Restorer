@@ -26,7 +26,9 @@ TYPES:
   BEGIN OF ty_block_inform_on_errors,
     block_priority  TYPE satc_ci_transport_setting,
     inform_priority TYPE satc_ci_transport_setting,
-  END OF ty_block_inform_on_errors.
+  END OF ty_block_inform_on_errors,
+
+  ty_software_components TYPE RANGE OF dlv_systc-dlvunit.
 
 CONSTANTS:
   transport_changes_allowed TYPE t000-cccoractiv VALUE '1',
@@ -36,7 +38,9 @@ CONSTANTS:
   ecatt_not_allowed         TYPE t000-ccimaildis VALUE ' ',
   no_crossclient_changes    TYPE t000-ccnocliind VALUE '3',
   not_modifiable_indicator  TYPE trchange VALUE 'N',
-  modifiable                TYPE trchange VALUE 'X'.
+  modifiable                TYPE trchange VALUE 'X',
+  restricted_modifiable     TYPE trchange VALUE 'R',
+  system_modifiable         TYPE trchange VALUE 'F'.
 
 SELECTION-SCREEN:BEGIN OF BLOCK client_settings WITH FRAME TITLE TEXT-cs1. "Client settings
   PARAMETERS:

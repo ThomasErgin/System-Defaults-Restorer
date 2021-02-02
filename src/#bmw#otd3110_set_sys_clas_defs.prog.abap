@@ -29,6 +29,8 @@ CLASS system_defaults_setter DEFINITION.
       client_role_prod           TYPE t000-cccategory VALUE 'P',
       client_role_cust           TYPE t000-cccategory VALUE 'C',
       customizing_not_changeable TYPE t000-cccoractiv VALUE '2',
+
+      cross_client_changes_allowed   TYPE t000-ccnocliind VALUE ' ',
       no_changes_allowed         TYPE t000-ccnocliind VALUE '2',
 
       req                        TYPE c VALUE ' ',
@@ -89,8 +91,11 @@ CLASS system_defaults_setter DEFINITION.
       update_client
         RETURNING VALUE(client_updated) TYPE abap_bool,
       update_system
-        IMPORTING requested_client_setting TYPE tadir-edtflag
-        RETURNING VALUE(system_updated)    TYPE abap_bool,
+        IMPORTING requested_client_setting       TYPE tadir-edtflag
+                  requested_namespace_setting    TYPE trnspace-editflag
+                  req_software_component_setting TYPE dlv_systc-changeable
+                  software_components            TYPE ty_software_components
+        RETURNING VALUE(system_updated)          TYPE abap_bool,
       update_user
         IMPORTING user_name           TYPE ust04-bname
                   user_profiles       TYPE suid_tt_bapiprof

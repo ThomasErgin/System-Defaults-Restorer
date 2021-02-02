@@ -69,13 +69,13 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
 
     "Set up the global system settings
     DATA(global_settings) = VALUE tt_tadir( ( pgmid = test object = test obj_name = space edtflag = space )
-                                            ( pgmid = usr1 object = usr1 obj_name = usr1 edtflag = abap_true ) ).
+                                            ( pgmid = usr1 object = usr1 obj_name = space edtflag = abap_true ) ).
     environment->insert_test_data( global_settings ).
 
     DATA: software_components TYPE STANDARD TABLE OF dlv_systc.
     "Set up software components
     software_components = VALUE #( ( dlvunit = test changeable = not_modifiable_indicator )
-                                   ( dlvunit = usr1 changeable = not_modifiable_indicator ) ).
+                                   ( dlvunit = usr1 changeable = restricted_modifiable ) ).
     environment->insert_test_data( software_components ).
 
     "Set up test users with SAP_ALL/SAP_NEW assigned
@@ -254,12 +254,12 @@ CLASS set_syst_defaults_aut IMPLEMENTATION.
   METHOD system_sett_notchanged_testmde.
     p_sysset = abap_true.     "change system settings
     p_test = abap_true.     "Test mode is active
-    client_id = test.
-    client_type = test.
+    client_id = usr1.
+    client_type = usr1.
     p_glset  = modifiable.         "modifiable
     execute_main( ).
     cl_abap_unit_assert=>assert_table_contains(
-      line             = VALUE /bmw/otd3110_output( message = 'No system changes made'(nsm) )
+      line             = VALUE /bmw/otd3110_output( message = 'System software components changed'(ssc) )
       table            = log_table[] ).
   ENDMETHOD.
 
